@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Streamly — Live Webinars with World-Class Experts</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.294.0/dist/umd/lucide.min.js"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Sora', 'sans-serif'],
+          sans: ['Inter', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  ::selection { background: #6366f1; color: #fff; }
+  html { scroll-padding-top: 96px; }
+  body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #0f172a; }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+  .reveal.revealed { opacity: 1; transform: none; }
+
+  /* Nav */
+  #site-nav { transition: box-shadow .3s ease, background-color .3s ease; }
+  #site-nav.nav-scrolled { box-shadow: 0 12px 32px -12px rgba(15,23,42,.18); background-color: rgba(255,255,255,.88); }
+
+  /* Hero decorations */
+  .bg-grid {
+    background-image: linear-gradient(to right, rgba(99,102,241,.08) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(99,102,241,.08) 1px, transparent 1px);
+    background-size: 44px 44px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 40%, transparent 100%);
+            mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, #000 40%, transparent 100%);
+  }
+  .blob { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: .5; animation: blobFloat 12s ease-in-out infinite; }
+  @keyframes blobFloat {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(24px,-30px) scale(1.08); }
+    66% { transform: translate(-20px,18px) scale(.94); }
+  }
+
+  /* Live equalizer */
+  .eq { display: flex; align-items: flex-end; gap: 3px; height: 18px; }
+  .eq span { width: 3px; border-radius: 2px; background: #f43f5e; animation: eq 1s ease-in-out infinite; height: 40%; }
+  .eq span:nth-child(2) { animation-delay: .15s; }
+  .eq span:nth-child(3) { animation-delay: .3s; }
+  .eq span:nth-child(4) { animation-delay: .45s; }
+  @keyframes eq { 0%,100% { height: 30%; } 50% { height: 100%; } }
+
+  .pulse-dot { position: relative; }
+  .pulse-dot::after { content: ''; position: absolute; inset: 0; border-radius: 9999px; background: inherit; animation: pulseRing 1.6s ease-out infinite; }
+  @keyframes pulseRing { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.6); opacity: 0; } }
+
+  .float-slow { animation: floatY 6s ease-in-out infinite; }
+  .float-slower { animation: floatY 8s ease-in-out infinite reverse; }
+  @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+  /* FAQ accordion */
+  .faq-panel { max-height: 0; overflow: hidden; transition: max-height .45s cubic-bezier(.16,1,.3,1); }
+  .faq-icon { transition: transform .3s ease, background-color .3s ease, color .3s ease; }
+
+  /* Modal */
+  #modal-overlay { transition: opacity .25s ease; }
+  #modal-overlay .modal-card { transition: transform .4s cubic-bezier(.16,1,.3,1), opacity .3s ease; transform: translateY(18px) scale(.97); opacity: 0; }
+  #modal-overlay.open .modal-card { transform: none; opacity: 1; }
+  .modal-scroll::-webkit-scrollbar { width: 6px; }
+  .modal-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+  /* Success check pop */
+  .check-pop { animation: checkPop .55s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes checkPop { 0% { transform: scale(.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+  /* Toast */
+  .toast { animation: toastIn .4s cubic-bezier(.16,1,.3,1) both; }
+  .toast.toast-out { animation: toastOut .35s ease both; }
+  @keyframes toastIn { from { transform: translateY(16px); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes toastOut { to { transform: translateY(12px); opacity: 0; } }
+
+  /* Marquee */
+  .marquee-track { display: flex; gap: 4rem; width: max-content; animation: marquee 28s linear infinite; }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  .text-gradient { background: linear-gradient(100deg, #4f46e5, #7c3aed 55%, #db2777); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+<!-- ================= HEADER ================= -->
+<header id="site-header" class="fixed top-0 inset-x-0 z-40">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <nav id="site-nav" class="mt-3 flex items-center justify-between h-16 rounded-2xl pl-4 pr-3 bg-white/70 backdrop-blur-xl border border-white/70 shadow-sm">
+      <a href="#top" class="flex items-center gap-2.5">
+        <span class="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 shadow-lg shadow-indigo-600/30">
+          <i data-lucide="radio" class="w-4.5 h-4.5 w-[18px] h-[18px] text-white"></i>
+        </span>
+        <span class="font-display font-700 font-bold text-lg tracking-tight text-slate-900">Streamly</span>
+      </a>
+
+      <div class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-600">
+        <a href="#webinars" class="px-3.5 py-2 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">Webinars</a>
+        <a href="#how" class="px-3.5 py-2 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">How it works</a>
+        <a href="#speakers" class="px-3.5 py-2 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">Speakers</a>
+        <a href="#faq" class="px-3.5 py-2 rounded-lg hover:bg-slate-100 hover:text-slate-900 transition">FAQ</a>
+      </div>
+
+      <div class="hidden md:flex items-center gap-3">
+        <button onclick="showToast('Sign-in is coming soon to the portal ✨','sparkles')" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition px-3 py-2">Sign in</button>
+        <a href="#webinars" class="inline-flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 px-4 py-2.5 rounded-xl shadow-lg shadow-indigo-600/25 transition hover:-translate-y-0.5">
+          Browse webinars <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+      <button id="menu-btn" class="md:hidden grid place-items-center w-10 h-10 rounded-xl text-slate-700 hover:bg-slate-100 transition" aria-label="Toggle menu">
+        <i data-lucide="menu" class="w-5 h-5 menu-open-icon"></i>
+        <i data-lucide="x" class="w-5 h-5 menu-close-icon hidden"></i>
+      </button>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="md:hidden hidden mt-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200 shadow-xl p-3">
+      <a href="#webinars" class="mobile-link block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Webinars</a>
+      <a href="#how" class="mobile-link block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">How it works</a>
+      <a href="#speakers" class="mobile-link block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">Speakers</a>
+      <a href="#faq" class="mobile-link block px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition">FAQ</a>
+      <a href="#webinars" class="mobile-link mt-2 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600">Browse webinars <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="relative overflow-hidden pt-32 pb-20 lg:pt-40 lg:pb-28">
+    <div class="absolute inset-0 bg-grid"></div>
+    <div class="blob w-[420px] h-[420px] bg-indigo-300 -top-32 -left-32"></div>
+    <div class="blob w-[380px] h-[380px] bg-violet-300 top-20 -right-24" style="animation-delay:-4s"></div>
+    <div class="blob w-[300px] h-[300px] bg-fuchsia-200 bottom-0 left-1/3" style="animation-delay:-8s"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-14 items-center">
+        <div class="text-center lg:text-left">
+          <div class="reveal inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-white/80 backdrop-blur px-4 py-1.5 text-xs font-semibold text-indigo-700 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-rose-500 pulse-dot"></span>
+            4 webinars live this week
+          </div>
+
+          <h1 class="reveal font-display font-extrabold text-4xl sm:text-5xl xl:text-6xl tracking-tight text-slate-900 mt-6 leading-[1.08]">
+            Learn from experts,
+            <span class="text-gradient">live and unfiltered.</span>
+          </h1>
+
+          <p class="reveal mt-6 text-lg text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            Join thousands of professionals in interactive live sessions on design, tech, marketing and more — with real-time Q&A, recordings and certificates included.
+          </p>
+
+          <div class="reveal mt-8 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto lg:mx-0">
+            <div class="relative flex-1">
+              <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+              <input id="hero-search" type="text" placeholder="Search topics, speakers, skills…" class="w-full h-14 pl-12 pr-4 rounded-2xl border border-slate-200 bg-white shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/15 focus:border-indigo-400 transition text-sm" />
+            </div>
+            <button onclick="heroSearchGo()" class="h-14 px-7 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold shadow-lg shadow-indigo-600/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-600/30 transition flex items-center justify-center gap-2">
+              Find a webinar <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="reveal mt-10 grid grid-cols-2 sm:grid-cols-4 gap-6 max-w-xl mx-auto lg:mx-0">
+            <div><p class="font-display text-2xl font-bold text-slate-900" data-counter="1200" data-suffix="+">0</p><p class="text-xs text-slate-500 mt-1 font-medium">Webinars hosted</p></div>
+            <div><p class="font-display text-2xl font-bold text-slate-900" data-counter="85" data-suffix="K">0</p><p class="text-xs text-slate-500 mt-1 font-medium">Attendees</p></div>
+            <div><p class="font-display text-2xl font-bold text-slate-900" data-counter="340" data-suffix="+">0</p><p class="text-xs text-slate-500 mt-1 font-medium">Expert speakers</p></div>
+            <div><p class="font-display text-2xl font-bold text-slate-900" data-counter="120" data-suffix="">0</p><p class="text-xs text-slate-500 mt-1 font-medium">Countries</p></div>
+          </div>
+        </div>
+
+        <!-- Live preview card -->
+        <div class="relative hidden lg:block">
+          <div class="float-slow relative z-10 max-w-md ml-auto">
+            <div class="rounded-3xl bg-white/90 backdrop-blur border border-white shadow-2xl shadow-indigo-900/10 overflow-hidden">
+              <div class="relative h-48 bg-gradient-to-br from-slate-900 via-indigo-950 to-violet-950 grid place-items-center">
+                <div class="absolute inset-0 bg-grid opacity-40"></div>
+                <button onclick="showToast('The live room opens in the attendee portal 🎬','video')" class="relative grid place-items-center w-16 h-16 rounded-full bg-white/15 backdrop-blur border border-white/30 text-white hover:scale-110 hover:bg-white/25 transition" aria-label="Play">
+                  <i data-lucide="play" class="w-6 h-6 fill-white ml-0.5"></i>
+                </button>
+                <span class="absolute top-4 left-4 inline-flex items-center gap-2 bg-rose-500 text-white text-[11px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full">
+                  <span class="eq !h-3"><span></span><span></span><span></span><span></span></span> Live
+                </span>
+                <span class="absolute bottom-4 right-4 bg-black/40 backdrop-blur text-white text-xs font-medium px-2.5 py-1 rounded-full">42:18</span>
+              </div>
+              <div class="p-5">
+                <p class="text-xs font-bold uppercase tracking-wider text-indigo-600">Design · Session 12</p>
+                <h3 class="font-display font-semibold text-lg text-slate-900 mt-1.5">Designing for Trust: Fintech UX Deep-Dive</h3>
+                <div class="flex items-center justify-between mt-4">
+                  <div class="flex items-center gap-3">
+                    <span class="grid place-items-center w-9 h-9 rounded-full bg-gradient-to-br from-rose-500 to-orange-400 text-white text-xs font-bold">MC</span>
+                    <div>
+                      <p class="text-sm font-semibold text-slate-800">Maya Cole</p>
+                      <p class="text-xs text-slate-500">Principal Designer, Vertex</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-bold text-slate-900">2,480</p>
+                    <p class="text-[11px] text-slate-500">watching now</p>
+                  </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2 rounded-xl bg-slate-50 border border-slate-100 px-3.5 py-2.5">
+                  <i data-lucide="message-circle" class="w-4 h-4 text-indigo-500 shrink-0"></i>
+                  <p class="text-xs text-slate-600 truncate">Priya just asked: “How do you test trust signals?”</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="float-slower absolute z-20 -left-4 bottom-10 flex items-center gap-3 bg-white/95 backdrop-blur border border-slate-100 shadow-xl rounded-2xl px-4 py-3">
+            <span class="grid place-items-center w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600"><i data-lucide="badge-check" class="w-5 h-5"></i></span>
+            <div>
+              <p class="text-sm font-semibold text-slate-900">Certificate included</p>
+              <p class="text-xs text-slate-500">with every session</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TRUSTED BY ================= -->
+  <section class="border-y border-slate-200/80 bg-white/60 py-8 overflow-hidden">
+    <p class="text-center text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 mb-6">Trusted by teams at</p>
+    <div class="relative">
+      <div class="marquee-track items-center text-slate-400">
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">◆ NovaLab</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">Vertex</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">● Brightline</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">Corely</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">▲ Quantia</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">Hexon</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">◆ NovaLab</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">Vertex</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">● Brightline</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">Corely</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">▲ Quantia</span>
+        <span class="font-display font-bold text-xl tracking-tight hover:text-slate-600 transition cursor-default">Hexon</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURED / COUNTDOWN ================= -->
+  <section class="py-16 lg:py-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal relative overflow-hidden rounded-[2rem] bg-slate-950 p-8 sm:p-12 lg:p-14 shadow-2xl shadow-indigo-950/30">
+        <div class="absolute inset-0 bg-grid opacity-30"></div>
+        <div class="blob w-96 h-96 bg-indigo-600/40 -top-24 -right-16"></div>
+        <div class="blob w-72 h-72 bg-violet-600/30 -bottom-20 -left-10" style="animation-delay:-5s"></div>
+
+        <div class="relative grid lg:grid-cols-[1fr_auto] gap-10 items-center">
+          <div>
+            <div class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 backdrop-blur px-4 py-1.5 text-xs font-semibold text-indigo-200">
+              <i data-lucide="zap" class="w-3.5 h-3.5"></i> Next up · seats filling fast
+            </div>
+            <h2 id="feat-title" class="font-display font-bold text-2xl sm:text-3xl lg:text-4xl text-white mt-5 leading-tight max-w-2xl">—</h2>
+            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 text-sm text-slate-300">
+              <span id="feat-speaker" class="inline-flex items-center gap-2"><i data-lucide="mic" class="w-4 h-4 text-indigo-300"></i> —</span>
+              <span id="feat-date" class="inline-flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-indigo-300"></i> —</span>
+              <span id="feat-time" class="inline-flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-indigo-300"></i> —</span>
+            </div>
+            <button id="feat-btn" data-reg="" onclick="openModal(parseInt(this.dataset.reg))" class="mt-8 inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-slate-900 font-semibold hover:bg-indigo-50 transition hover:-translate-y-0.5 shadow-xl">
+              Reserve my seat <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="flex lg:flex-col gap-3 sm:gap-4" aria-label="Countdown">
+            <div class="cd-box flex-1 lg:flex-none text-center rounded-2xl bg-white/10 border border-white/15 backdrop-blur px-5 py-4 min-w-[88px]">
+              <p id="cd-d" class="font-display text-3xl sm:text-4xl font-bold text-white tabular-nums">00</p>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-300 mt-1">Days</p>
+            </div>
+            <div class="cd-box flex-1 lg:flex-none text-center rounded-2xl bg-white/10 border border-white/15 backdrop-blur px-5 py-4 min-w-[88px]">
+              <p id="cd-h" class="font-display text-3xl sm:text-4xl font-bold text-white tabular-nums">00</p>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-300 mt-1">Hours</p>
+            </div>
+            <div class="cd-box flex-1 lg:flex-none text-center rounded-2xl bg-white/10 border border-white/15 backdrop-blur px-5 py-4 min-w-[88px]">
+              <p id="cd-m" class="font-display text-3xl sm:text-4xl font-bold text-white tabular-nums">00</p>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-300 mt-1">Minutes</p>
+            </div>
+            <div class="cd-box flex-1 lg:flex-none text-center rounded-2xl bg-white/10 border border-white/15 backdrop-blur px-5 py-4 min-w-[88px]">
+              <p id="cd-s" class="font-display text-3xl sm:text-4xl font-bold text-white tabular-nums">00</p>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-indigo-300 mt-1">Seconds</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WEBINARS ================= -->
+  <section id="webinars" class="py-16 lg:py-24 scroll-mt-28">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-indigo-50 border border-indigo-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-indigo-600">
+            <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Upcoming sessions
+          </span>
+          <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 mt-4 tracking-tight">Find your next session</h2>
+          <p class="text-slate-500 mt-3 max-w-xl">All sessions include live Q&amp;A, a HD recording and a certificate of attendance.</p>
+        </div>
+        <p class="text-sm font-medium text-slate-500 shrink-0"><span id="result-count" class="font-display font-bold text-slate-900 text-lg">0</span> webinars found</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="reveal mt-10 flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+        <div id="cat-pills" class="flex flex-wrap gap-2"></div>
+        <div class="relative lg:w-80">
+          <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+          <input id="grid-search" type="text" placeholder="Search title or speaker…" class="w-full h-11 pl-11 pr-4 rounded-xl border border-slate-200 bg-white shadow-sm text-sm placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/15 focus:border-indigo-400 transition" />
+        </div>
+      </div>
+
+      <!-- Grid -->
+      <div id="webinar-grid" class="mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section id="how" class="py-16 lg:py-24 bg-white border-y border-slate-200/70 scroll-mt-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal text-center max-w-2xl mx-auto">
+        <span class="inline-flex items-center gap-2 rounded-full bg-violet-50 border border-violet-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-violet-600">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> How it works
+        </span>
+        <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 mt-4 tracking-tight">Three steps to smarter learning</h2>
+        <p class="text-slate-500 mt-3">No fluff, no funnels. Reserve a seat, show up live, keep the knowledge forever.</p>
+      </div>
+
+      <div class="relative mt-16 grid md:grid-cols-3 gap-10 md:gap-6">
+        <div class="hidden md:block absolute top-8 left-[16%] right-[16%] h-px bg-gradient-to-r from-indigo-200 via-violet-300 to-fuchsia-200"></div>
+        <div class="reveal relative text-center">
+          <div class="relative z-10 mx-auto grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-600/25">
+            <i data-lucide="bookmark" class="w-7 h-7"></i>
+            <span class="absolute -top-2 -right-2 grid place-items-center w-7 h-7 rounded-full bg-white text-indigo-600 text-xs font-bold shadow-md border border-slate-100">1</span>
+          </div>
+          <h3 class="font-display font-semibold text-lg text-slate-900 mt-6">Reserve your spot</h3>
+          <p class="text-sm text-slate-500 mt-2.5 max-w-xs mx-auto leading-relaxed">One click saves your seat and sends a calendar invite with the live-room link.</p>
+        </div>
+        <div class="reveal relative text-center" style="transition-delay:.1s">
+          <div class="relative z-10 mx-auto grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-500 text-white shadow-xl shadow-violet-600/25">
+            <i data-lucide="video" class="w-7 h-7"></i>
+            <span class="absolute -top-2 -right-2 grid place-items-center w-7 h-7 rounded-full bg-white text-violet-600 text-xs font-bold shadow-md border border-slate-100">2</span>
+          </div>
+          <h3 class="font-display font-semibold text-lg text-slate-900 mt-6">Join live &amp; interact</h3>
+          <p class="text-sm text-slate-500 mt-2.5 max-w-xs mx-auto leading-relaxed">Ask questions in real time, vote in polls and chat with fellow attendees.</p>
+        </div>
+        <div class="reveal relative text-center" style="transition-delay:.2s">
+          <div class="relative z-10 mx-auto grid place-items-center w-16 h-16 rounded-2xl bg-gradient-to-br from-fuchsia-500 to-rose-500 text-white shadow-xl shadow-fuchsia-500/25">
+            <i data-lucide="badge-check" class="w-7 h-7"></i>
+            <span class="absolute -top-2 -right-2 grid place-items-center w-7 h-7 rounded-full bg-white text-fuchsia-600 text-xs font-bold shadow-md border border-slate-100">3</span>
+          </div>
+          <h3 class="font-display font-semibold text-lg text-slate-900 mt-6">Keep the knowledge</h3>
+          <p class="text-sm text-slate-500 mt-2.5 max-w-xs mx-auto leading-relaxed">Get the HD recording, slides and a shareable certificate — automatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPEAKERS ================= -->
+  <section id="speakers" class="py-16 lg:py-24 scroll-mt-28">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <span class="inline-flex items-center gap-2 rounded-full bg-indigo-50 border border-indigo-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-indigo-600">
+            <i data-lucide="users" class="w-3.5 h-3.5"></i> The experts
+          </span>
+          <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 mt-4 tracking-tight">Learn from the best in the field</h2>
+        </div>
+        <button onclick="showToast('Speaker applications open next month 🎤','mic')" class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-500 transition shrink-0">
+          Become a speaker <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="reveal group bg-white rounded-2xl border border-slate-200/80 p-6 text-center shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
+          <div class="mx-auto grid place-items-center w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-white font-display text-2xl font-bold shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition">SC</div>
+          <h3 class="font-display font-semibold text-slate-900 mt-5">Sarah Chen</h3>
+          <p class="text-xs text-slate-500 mt-1">Head of Design · Nova Labs</p>
+          <div class="mt-5 pt-5 border-t border-slate-100 flex justify-center gap-6 text-center">
+            <div><p class="font-display font-bold text-slate-900">18</p><p class="text-[11px] text-slate-500">Sessions</p></div>
+            <div><p class="font-display font-bold text-slate-900">9.6K</p><p class="text-[11px] text-slate-500">Learners</p></div>
+            <div><p class="font-display font-bold text-amber-500">4.9★</p><p class="text-[11px] text-slate-500">Rating</p></div>
+          </div>
+        </div>
+        <div class="reveal group bg-white rounded-2xl border border-slate-200/80 p-6 text-center shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300" style="transition-delay:.08s">
+          <div class="mx-auto grid place-items-center w-20 h-20 rounded-full bg-gradient-to-br from-rose-500 to-orange-400 text-white font-display text-2xl font-bold shadow-lg shadow-rose-500/30 group-hover:scale-105 transition">MP</div>
+          <h3 class="font-display font-semibold text-slate-900 mt-5">Maya Patel</h3>
+          <p class="text-xs text-slate-500 mt-1">Growth Lead · Brightline</p>
+          <div class="mt-5 pt-5 border-t border-slate-100 flex justify-center gap-6 text-center">
+            <div><p class="font-display font-bold text-slate-900">24</p><p class="text-[11px] text-slate-500">Sessions</p></div>
+            <div><p class="font-display font-bold text-slate-900">12K</p><p class="text-[11px] text-slate-500">Learners</p></div>
+            <div><p class="font-display font-bold text-amber-500">4.8★</p><p class="text-[11px] text-slate-500">Rating</p></div>
+          </div>
+        </div>
+        <div class="reveal group bg-white rounded-2xl border border-slate-200/80 p-6 text-center shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300" style="transition-delay:.16s">
+          <div class="mx-auto grid place-items-center w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white font-display text-2xl font-bold shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition">JO</div>
+          <h3 class="font-display font-semibold text-slate-900 mt-5">Dr. James Okafor</h3>
+          <p class="text-xs text-slate-500 mt-1">Data Scientist · Quantia</p>
+          <div class="mt-5 pt-5 border-t border-slate-100 flex justify-center gap-6 text-center">
+            <div><p class="font-display font-bold text-slate-900">15</p><p class="text-[11px] text-slate-500">Sessions</p></div>
+            <div><p class="font-display font-bold text-slate-900">7.8K</p><p class="text-[11px] text-slate-500">Learners</p></div>
+            <div><p class="font-display font-bold text-amber-500">5.0★</p><p class="text-[11px] text-slate-500">Rating</p></div>
+          </div>
+        </div>
+        <div class="reveal group bg-white rounded-2xl border border-slate-200/80 p-6 text-center shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300" style="transition-delay:.24s">
+          <div class="mx-auto grid place-items-center w-20 h-20 rounded-full bg-gradient-to-br from-sky-500 to-indigo-500 text-white font-display text-2xl font-bold shadow-lg shadow-sky-500/30 group-hover:scale-105 transition">ER</div>
+          <h3 class="font-display font-semibold text-slate-900 mt-5">Elena Rodriguez</h3>
+          <p class="text-xs text-slate-500 mt-1">Design Director · Corely</p>
+          <div class="mt-5 pt-5 border-t border-slate-100 flex justify-center gap-6 text-center">
+            <div><p class="font-display font-bold text-slate-900">21</p><p class="text-[11px] text-slate-500">Sessions</p></div>
+            <div><p class="font-display font-bold text-slate-900">10K</p><p class="text-[11px] text-slate-500">Learners</p></div>
+            <div><p class="font-display font-bold text-amber-500">4.9★</p><p class="text-[11px] text-slate-500">Rating</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIALS ================= -->
+  <section class="py-16 lg:py-24 bg-white border-y border-slate-200/70">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal text-center max-w-2xl mx-auto">
+        <span class="inline-flex items-center gap-2 rounded-full bg-amber-50 border border-amber-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-amber-600">
+          <i data-lucide="quote" class="w-3.5 h-3.5"></i> Wall of love
+        </span>
+        <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 mt-4 tracking-tight">What attendees say</h2>
+      </div>
+
+      <div class="mt-12 grid md:grid-cols-3 gap-6">
+        <figure class="reveal relative bg-slate-50 rounded-2xl border border-slate-200/70 p-7 hover:shadow-lg transition-shadow">
+          <i data-lucide="quote" class="w-8 h-8 text-indigo-200 absolute top-6 right-6"></i>
+          <div class="flex gap-1 text-amber-400 mb-4">★★★★★</div>
+          <blockquote class="text-slate-600 leading-relaxed text-[15px]">“The AI product design session completely changed how our team runs discovery. Sarah answered every question — even the hard ones. Worth every minute.”</blockquote>
+          <figcaption class="flex items-center gap-3 mt-6">
+            <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white text-xs font-bold">TK</span>
+            <div><p class="text-sm font-semibold text-slate-900">Tom Kessler</p><p class="text-xs text-slate-500">Product Manager, Hexon</p></div>
+          </figcaption>
+        </figure>
+        <figure class="reveal relative bg-slate-50 rounded-2xl border border-slate-200/70 p-7 hover:shadow-lg transition-shadow" style="transition-delay:.1s">
+          <i data-lucide="quote" class="w-8 h-8 text-indigo-200 absolute top-6 right-6"></i>
+          <div class="flex gap-1 text-amber-400 mb-4">★★★★★</div>
+          <blockquote class="text-slate-600 leading-relaxed text-[15px]">“I've paid hundreds for courses with less value than one free Streamly webinar. The recording + certificate combo is perfect for my CPD hours.”</blockquote>
+          <figcaption class="flex items-center gap-3 mt-6">
+            <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 to-orange-400 text-white text-xs font-bold">AN</span>
+            <div><p class="text-sm font-semibold text-slate-900">Aisha Nadeem</p><p class="text-xs text-slate-500">Marketing Lead, Corely</p></div>
+          </figcaption>
+        </figure>
+        <figure class="reveal relative bg-slate-50 rounded-2xl border border-slate-200/70 p-7 hover:shadow-lg transition-shadow" style="transition-delay:.2s">
+          <i data-lucide="quote" class="w-8 h-8 text-indigo-200 absolute top-6 right-6"></i>
+          <div class="flex gap-1 text-amber-400 mb-4">★★★★★</div>
+          <blockquote class="text-slate-600 leading-relaxed text-[15px]">“Dr. Okafor's data storytelling session was the most engaging hour of my year. The live polls made it feel like a workshop, not a lecture.”</blockquote>
+          <figcaption class="flex items-center gap-3 mt-6">
+            <span class="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 text-white text-xs font-bold">DL</span>
+            <div><p class="text-sm font-semibold text-slate-900">Daniel Laurent</p><p class="text-xs text-slate-500">Analyst, Brightline</p></div>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section id="faq" class="py-16 lg:py-24 scroll-mt-28">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[1fr_1.4fr] gap-12">
+      <div class="reveal">
+        <span class="inline-flex items-center gap-2 rounded-full bg-indigo-50 border border-indigo-100 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-indigo-600">
+          <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> FAQ
+        </span>
+        <h2 class="font-display font-bold text-3xl sm:text-4xl text-slate-900 mt-4 tracking-tight">Questions, answered</h2>
+        <p class="text-slate-500 mt-3 leading-relaxed">Everything you need to know before your first session. Still curious?</p>
+        <button onclick="showToast('Our team replies within a few hours 📬','mail')" class="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-500 transition">
+          Contact support <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="reveal space-y-3">
+        <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
+          <button class="faq-btn w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-800 hover:bg-slate-50 transition">
+            Are the webinars really free to attend?
+            <span class="faq-icon grid place-items-center w-8 h-8 rounded-full bg-slate-100 text-slate-500 shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></span>
+          </button>
+          <div class="faq-panel"><p class="px-6 pb-5 text-sm text-slate-500 leading-relaxed">Yes — every live session on Streamly is 100% free for attendees. Speakers and partners sponsor sessions, so you get expert knowledge at zero cost. Recordings are also free for registered attendees.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
+          <button class="faq-btn w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-800 hover:bg-slate-50 transition">
+            What happens after I register?
+            <span class="faq-icon grid place-items-center w-8 h-8 rounded-full bg-slate-100 text-slate-500 shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></span>
+          </button>
+          <div class="faq-panel"><p class="px-6 pb-5 text-sm text-slate-500 leading-relaxed">You'll instantly receive a confirmation email with a calendar invite and your personal live-room link. We'll also send reminder emails 24 hours and 1 hour before the session starts.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
+          <button class="faq-btn w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-800 hover:bg-slate-50 transition">
+            Can I ask questions during the session?
+            <span class="faq-icon grid place-items-center w-8 h-8 rounded-full bg-slate-100 text-slate-500 shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></span>
+          </button>
+          <div class="faq-panel"><p class="px-6 pb-5 text-sm text-slate-500 leading-relaxed">Absolutely — live Q&amp;A is the heart of every session. You can upvote questions from other attendees, participate in polls, and chat with fellow participants in the session lounge.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
+          <button class="faq-btn w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-800 hover:bg-slate-50 transition">
+            What if I can't make it live?
+            <span class="faq-icon grid place-items-center w-8 h-8 rounded-full bg-slate-100 text-slate-500 shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></span>
+          </button>
+          <div class="faq-panel"><p class="px-6 pb-5 text-sm text-slate-500 leading-relaxed">No problem. Every registrant receives the HD recording, slides and resources within 2 hours of the session ending — so registering is still worth it even if your calendar says otherwise.</p></div>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden">
+          <button class="faq-btn w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-800 hover:bg-slate-50 transition">
+            Do I get a certificate?
+            <span class="faq-icon grid place-items-center w-8 h-8 rounded-full bg-slate-100 text-slate-500 shrink-0"><i data-lucide="plus" class="w-4 h-4"></i></span>
+          </button>
+          <div class="faq-panel"><p class="px-6 pb-5 text-sm text-slate-500 leading-relaxed">Yes! After attending (live or via recording) you'll receive a verified certificate of attendance that you can share on LinkedIn — perfect for CPD and professional development requirements.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="pb-20 lg:pb-28">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 p-8 sm:p-14 text-center shadow-2xl shadow-indigo-600/30">
+        <div class="absolute inset-0 bg-grid opacity-30"></div>
+        <div class="blob w-80 h-80 bg-white/20 -top-20 -left-10"></div>
+        <div class="blob w-64 h-64 bg-fuchsia-300/30 -bottom-16 -right-8" style="animation-delay:-6s"></div>
+        <div class="relative">
+          <span class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 backdrop-blur px-4 py-1.5 text-xs font-semibold text-white">
+            <i data-lucide="bell" class="w-3.5 h-3.5"></i> Weekly digest
+          </span>
+          <h2 class="font-display font-bold text-3xl sm:text-4xl text-white mt-5 tracking-tight">Never miss a great session</h2>
+          <p class="text-indigo-100 mt-3 max-w-lg mx-auto">One email every Monday with the best upcoming webinars, curated for your interests.</p>
+          <form id="newsletter-form" class="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto" novalidate>
+            <div class="relative flex-1 text-left">
+              <i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+              <input id="newsletter-email" type="email" placeholder="you@work.com" class="w-full h-13 h-[52px] pl-11 pr-4 rounded-2xl border-0 bg-white shadow-lg placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-white/40 text-sm" />
+            </div>
+            <button type="submit" class="h-[52px] px-7 rounded-2xl bg-slate-950 text-white font-semibold hover:bg-slate-800 transition shadow-xl hover:-translate-y-0.5">Subscribe</button>
+          </form>
+          <p class="text-xs text-indigo-200 mt-4">Free forever · Unsubscribe anytime · No spam</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="bg-slate-950 text-slate-400">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-10">
+      <div class="lg:col-span-2">
+        <a href="#top" class="flex items-center gap-2.5">
+          <span class="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500">
+            <i data-lucide="radio" class="w-[18px] h-[18px] text-white"></i>
+          </span>
+          <span class="font-display font-bold text-lg tracking-tight text-white">Streamly</span>
+        </a>
+        <p class="mt-5 text-sm leading-relaxed max-w-xs">Live, interactive webinars with world-class experts. Learn faster, ask anything, keep everything.</p>
+        <div class="flex gap-3 mt-6">
+          <a href="#top" aria-label="Twitter" onclick="showToast('Follow us for session announcements 🐦','twitter');return false;" class="grid place-items-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-indigo-600 hover:border-indigo-500 hover:text-white transition"><i data-lucide="twitter" class="w-4 h-4"></i></a>
+          <a href="#top" aria-label="LinkedIn" onclick="showToast('Connect with us on LinkedIn 💼','linkedin');return false;" class="grid place-items-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-indigo-600 hover:border-indigo-500 hover:text-white transition"><i data-lucide="linkedin" class="w-4 h-4"></i></a>
+          <a href="#top" aria-label="YouTube" onclick="showToast('Recordings live on our channel ▶️','youtube');return false;" class="grid place-items-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-indigo-600 hover:border-indigo-500 hover:text-white transition"><i data-lucide="youtube" class="w-4 h-4"></i></a>
+          <a href="#top" aria-label="Instagram" onclick="showToast('Behind the scenes on Instagram 📸','instagram');return false;" class="grid place-items-center w-10 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-indigo-600 hover:border-indigo-500 hover:text-white transition"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-white font-display font-semibold text-sm mb-4">Explore</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#webinars" class="hover:text-white transition">All webinars</a></li>
+          <li><a href="#speakers" class="hover:text-white transition">Speakers</a></li>
+          <li><a href="#how" class="hover:text-white transition">How it works</a></li>
+          <li><a href="#faq" class="hover:text-white transition">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-display font-semibold text-sm mb-4">Categories</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#webinars" onclick="setCategory('Technology')" class="hover:text-white transition">Technology</a></li>
+          <li><a href="#webinars" onclick="setCategory('Design')" class="hover:text-white transition">Design</a></li>
+          <li><a href="#webinars" onclick="setCategory('Marketing')" class="hover:text-white transition">Marketing</a></li>
+          <li><a href="#webinars" onclick="setCategory('Business')" class="hover:text-white transition">Business</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="text-white font-display font-semibold text-sm mb-4">Company</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li><a href="#top" class="hover:text-white transition">About us</a></li>
+          <li><a href="#top" class="hover:text-white transition">Careers</a></li>
+          <li><a href="#top" class="hover:text-white transition">Privacy policy</a></li>
+          <li><a href="#top" class="hover:text-white transition">Terms of service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-14 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+      <p>© 2025 Streamly Inc. All rights reserved.</p>
+      <p class="flex items-center gap-1.5">Crafted with <i data-lucide="zap" class="w-3.5 h-3.5 text-indigo-400"></i> for lifelong learners</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= REGISTRATION MODAL ================= -->
+<div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 opacity-0">
+  <div class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onclick="closeModal()"></div>
+  <div class="modal-card relative w-full max-w-lg max-h-[90vh] overflow-y-auto modal-scroll bg-white rounded-3xl shadow-2xl">
+    <!-- Header -->
+    <div class="relative bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 px-7 pt-7 pb-6 text-white overflow-hidden">
+      <div class="absolute inset-0 bg-grid opacity-30"></div>
+      <button onclick="closeModal()" class="absolute top-4 right-4 grid place-items-center w-9 h-9 rounded-full bg-white/15 hover:bg-white/30 transition z-10" aria-label="Close">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+      <div class="relative">
+        <span id="m-cat" class="inline-block bg-white/20 backdrop-blur text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">Category</span>
+        <h3 id="m-title" class="font-display font-bold text-xl sm:text-2xl mt-3 leading-snug pr-8">Webinar title</h3>
+      </div>
+    </div>
+
+    <!-- Form view -->
+    <div id="modal-form-view" class="px-7 py-6">
+      <div class="flex items-center gap-3">
+        <span id="m-avatar" class="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-white text-sm font-bold">AB</span>
+        <div>
+          <p id="m-speaker" class="text-sm font-semibold text-slate-900">Speaker</p>
+          <p id="m-role" class="text-xs text-slate-500">Role</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-5">
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
+          <i data-lucide="calendar" class="w-4 h-4 mx-auto text-indigo-500"></i>
+          <p id="m-date" class="text-[11px] font-semibold text-slate-800 mt-1.5 leading-tight">—</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
+          <i data-lucide="clock" class="w-4 h-4 mx-auto text-indigo-500"></i>
+          <p id="m-time" class="text-[11px] font-semibold text-slate-800 mt-1.5 leading-tight">—</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
+          <i data-lucide="timer" class="w-4 h-4 mx-auto text-indigo-500"></i>
+          <p id="m-duration" class="text-[11px] font-semibold text-slate-800 mt-1.5 leading-tight">—</p>
+        </div>
+        <div class="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
+          <i data-lucide="users" class="w-4 h-4 mx-auto text-indigo-500"></i>
+          <p id="m-seats" class="text-[11px] font-semibold text-slate-800 mt-1.5 leading-tight">—</p>
+        </div>
+      </div>
+
+      <form id="reg-form" class="mt-6 space-y-4" novalidate>
+        <div>
+          <label for="reg-name" class="block text-xs font-semibold text-slate-700 mb-1.5">Full name *</label>
+          <input id="reg-name" type="text" placeholder="Alex Morgan" class="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/15 focus:border-indigo-400 transition" />
+        </div>
+        <div>
+          <label for="reg-email" class="block text-xs font-semibold text-slate-700 mb-1.5">Work email *</label>
+          <input id="reg-email" type="email" placeholder="alex@company.com" class="w-full h-11 px-4 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/15 focus:border-indigo-400 transition" />
+          <p id="reg-email-error" class="hidden text-xs text-rose-500 mt-1.5 font-medium">Please enter a valid email address.</p>
+        </div>
+        <div>
+          <label for="reg-goal" class="block text-xs font-semibold text-slate-700 mb-1.5">What do you hope to learn? <span class="text-slate-400 font-normal">(optional)</span></label>
+          <textarea id="reg-goal" rows="2" placeholder="I'd love to hear about…" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-indigo-500/15 focus:border-indigo-400 transition resize-none"></textarea>
+        </div>
+        <label class="flex items-start gap-3 cursor-pointer select-none">
+          <input id="reg-remind" type="checkbox" checked class="mt-0.5 w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/30" />
+          <span class="text-xs text-slate-500 leading-relaxed">Email me a reminder 24 hours and 1 hour before we go live.</span>
+        </label>
+        <p id="reg-error" class="hidden text-xs text-rose-500 font-medium">Please fill in your name and a valid email.</p>
+        <button type="submit" class="w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold shadow-lg shadow-indigo-600/25 hover:from-indigo-500 hover:to-violet-500 transition flex items-center justify-center gap-2">
+          Confirm my free seat <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <p class="text-center text-[11px] text-slate-400">Free forever · No credit card · Recording included</p>
+      </form>
+    </div>
+
+    <!-- Success view -->
+    <div id="modal-success-view" class="hidden px-7 py-10 text-center">
+      <div class="check-pop mx-auto grid place-items-center w-20 h-20 rounded-full bg-emerald-100">
+        <i data-lucide="check-circle-2" class="w-10 h-10 text-emerald-500"></i>
+      </div>
+      <h3 class="font-display font-bold text-2xl text-slate-900 mt-6">You're in! 🎉</h3>
+      <p class="text-sm text-slate-500 mt-2 leading-relaxed">Your seat for <span id="s-title" class="font-semibold text-slate-700">—</span> is confirmed.</p>
+      <div class="mt-5 inline-flex flex-col sm:flex-row gap-x-6 gap-y-1 rounded-2xl bg-slate-50 border border-slate-100 px-6 py-4 text-sm text-slate-600">
+        <span class="inline-flex items-center gap-2"><i data-lucide="calendar" class="w-4 h-4 text-indigo-500"></i> <span id="s-date">—</span></span>
+        <span class="inline-flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-indigo-500"></i> <span id="s-time">—</span></span>
+      </div>
+      <div class="mt-7 flex flex-col sm:flex-row gap-3">
+        <button onclick="showToast('Calendar invite sent to your inbox 📅','calendar')" class="flex-1 h-12 rounded-2xl border-2 border-slate-200 font-semibold text-slate-700 text-sm hover:border-indigo-300 hover:text-indigo-600 transition flex items-center justify-center gap-2">
+          <i data-lucide="calendar" class="w-4 h-4"></i> Add to calendar
+        </button>
+        <button onclick="closeModal()" class="flex-1 h-12 rounded-2xl bg-slate-950 text-white font-semibold text-sm hover:bg-slate-800 transition">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= TOASTS ================= -->
+<div id="toast-wrap" class="fixed bottom-5 right-5 z-[60] flex flex-col gap-3 items-end pointer-events-none"></div>
+
+<script>
+/* ============================================================
+   DATA
+============================================================ */
+const AVATARS = [
+  'from-indigo-500 to-violet-500',
+  'from-rose-500 to-orange-400',
+  'from-emerald-500 to-teal-500',
+  'from-sky-500 to-indigo-500',
+  'from-fuchsia-500 to-pink-500',
+  'from-amber-500 to-orange-500',
+];
+
+const RAW_WEBINARS = [
+  { id: 1, title: 'The Future of AI in Product Design', speaker: 'Sarah Chen', role: 'Head of Design · Nova Labs', category: 'Technology', inHours: 5,  duration: '60 min', spots: 350, registered: 298, level: 'Intermediate', icon: 'cpu',           gradient: 'from-indigo-500 via-violet-600 to-purple-700' },
+  { id: 2, title: 'Building a Brand That Converts in 2025', speaker: 'Maya Patel', role: 'Growth Lead · Brightline', category: 'Marketing', inHours: 26, duration: '45 min', spots: 500, registered: 213, level: 'All levels',   icon: 'megaphone',     gradient: 'from-rose-500 via-orange-500 to-amber-500' },
+  { id: 3, title: 'Data Storytelling with Python', speaker: 'Dr. James Okafor', role: 'Data Scientist · Quantia', category: 'Data Science', inHours: 74, duration: '90 min', spots: 250, registered: 241, level: 'Advanced',     icon: 'bar-chart-3',  gradient: 'from-emerald-500 via-teal-600 to-cyan-700' },
+  { id: 4, title: 'Design Systems at Scale: A Field Guide', speaker: 'Elena Rodriguez', role: 'Design Director · Corely', category: 'Design', inHours: 122, duration: '60 min', spots: 400, registered: 156, level: 'Intermediate', icon: 'layers',     gradient: 'from-sky-500 via-blue-600 to-indigo-700' },
+  { id: 5, title: 'Fundraising in 2025: What Investors Want', speaker: 'David Kim', role: 'General Partner · Foundry VC', category: 'Business', inHours: 170, duration: '75 min', spots: 300, registered: 112, level: 'All levels', icon: 'trending-up', gradient: 'from-amber-500 via-orange-600 to-red-600' },
+  { id: 6, title: 'Mastering Public Speaking on Camera', speaker: 'Amara Johnson', role: 'Communication Coach', category: 'Personal Growth', inHours: 218, duration: '50 min', spots: 600, registered: 187, level: 'All levels', icon: 'mic',   gradient: 'from-fuchsia-500 via-pink-600 to-rose-600' },
+  { id: 7, title: 'Cloud Architecture Patterns That Scale', speaker: 'Ravi Menon', role: 'Principal Engineer · Hexon', category: 'Technology', inHours: 266, duration: '80 min', spots: 350, registered: 74, level: 'Advanced', icon: 'cloud',  gradient: 'from-slate-600 via-slate-700 to-slate-900' },
+  { id: 8, title: 'SEO in the Age of AI Search', speaker: 'Lucas Meyer', role: 'SEO Director · Brightline', category: 'Marketing', inHours: 314, duration: '55 min', spots: 450, registered: 96, level: 'Intermediate', icon: 'search', gradient: 'from-violet-500 via-purple-600 to-fuchsia-600' },
+  { id: 9, title: 'The Psychology of Pricing', speaker: 'Priya Nair', role: 'Behavioral Economist', category: 'Business', inHours: 362, duration: '60 min', spots: 300, registered: 41, level: 'Intermediate', icon: 'tag',     gradient: 'from-teal-500 via-emerald-600 to-green-700' },
+];
+
+// Compute real dates relative to now so the countdown always works
+const WEBINARS = RAW_WEBINARS.map((w, i) => ({
+  ...w,
+  date: new Date(Date.now() + w.inHours * 3600 * 1000),
+  avatar: AVATARS[i % AVATARS.length],
+}));
+
+const CATEGORIES = ['All', ...new Set(WEBINARS.map(w => w.category))];
+
+/* ============================================================
+   STATE
+============================================================ */
+let activeCat = 'All';
+const registeredSet = new Set();
+const bookmarkSet = new Set();
+let currentWebinarId = null;
+let featured = null;
+
+/* ============================================================
+   HELPERS
+============================================================ */
+const $ = (id) => document.getElementById(id);
+const fmtDate = (d) => d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+const fmtDateLong = (d) => d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+const fmtTime = (d) => d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+const initials = (name) => name.split(' ').filter(p => /^[A-Za-z]/.test(p)).map(p => p[0]).slice(0, 2).join('').toUpperCase();
+
+/* ============================================================
+   TOASTS
+============================================================ */
+function showToast(msg, icon = 'check-circle-2') {
+  const wrap = $('toast-wrap');
+  const el = document.createElement('div');
+  el.className = 'toast pointer-events-auto flex items-center gap-3 bg-white border border-slate-200 shadow-2xl shadow-slate-900/10 rounded-2xl pl-3 pr-5 py-3 max-w-sm';
+  el.innerHTML = `
+    <span class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-50 text-emerald-500 shrink-0"><i data-lucide="${icon}" class="w-4.5 h-4.5 w-[18px] h-[18px]"></i></span>
+    <p class="text-sm font-medium text-slate-800">${msg}</p>`;
+  wrap.appendChild(el);
+  lucide.createIcons();
+  setTimeout(() => {
+    el.classList.add('toast-out');
+    setTimeout(() => el.remove(), 380);
+  }, 3200);
+}
+
+/* ============================================================
+   SCROLL REVEAL
+============================================================ */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.1 });
+
+function observeReveals(scope = document) {
+  scope.querySelectorAll('.reveal:not(.revealed)').forEach(el => io.observe(el));
+}
+
+/* ============================================================
+   RENDER WEBINAR GRID
+============================================================ */
+function cardHTML(w) {
+  const pct = Math.min(100, Math.round((w.registered / w.spots) * 100));
+  const left = w.spots - w.registered;
+  const almostFull = pct >= 85;
+  const isReg = registeredSet.has(w.id);
+  const isSaved = bookmarkSet.has(w.id);
+
+  return `
+  <article class="reveal group bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:shadow-slate-900/8 hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col">
+    <div class="relative h-40 bg-gradient-to-br ${w.gradient} grid place-items-center overflow-hidden">
+      <div class="absolute inset-0 bg-grid opacity-30"></div>
+      <div class="absolute -bottom-10 -right-10 w-36 h-36 rounded-full bg-white/10 group-hover:scale-125 transition-transform duration-500"></div>
+      <div class="absolute -top-8 -left-8 w-28 h-28 rounded-full bg-black/10 group-hover:scale-125 transition-transform duration-500"></div>
+      <i data-lucide="${w.icon}" class="relative w-12 h-12 text-white/95 drop-shadow-lg group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300"></i>
+      <span class="absolute top-3 left-3 bg-white/20 backdrop-blur border border-white/25 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">${w.category}</span>
+      ${almostFull
+        ? '<span class="absolute top-3 right-3 bg-amber-400 text-amber-950 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">Almost full</span>'
+        : '<span class="absolute top-3 right-3 bg-white/20 backdrop-blur border border-white/25 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">Open</span>'}
+      <span class="absolute bottom-3 right-3 bg-black/30 backdrop-blur text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">${w.duration} · Live + Q&amp;A</span>
+    </div>
+
+    <div class="p-5 flex flex-col gap-3 flex-1">
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
+        <span class="inline-flex items-center gap-1.5"><i data-lucide="calendar" class="w-3.5 h-3.5 text-indigo-400"></i>${fmtDate(w.date)}</span>
+        <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+        <span class="inline-flex items-center gap-1.5"><i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>${fmtTime(w.date)}</span>
+        <span class="ml-auto text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">${w.level}</span>
+      </div>
+
+      <h3 class="font-display font-semibold text-[17px] text-slate-900 leading-snug group-hover:text-indigo-700 transition-colors">${w.title}</h3>
+
+      <div class="flex items-center gap-3">
+        <span class="grid place-items-center w-9 h-9 rounded-full bg-gradient-to-br ${w.avatar} text-white text-[11px] font-bold shrink-0">${initials(w.speaker)}</span>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-slate-800 truncate">${w.speaker}</p>
+          <p class="text-xs text-slate-500 truncate">${w.role}</p>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-2">
+        <div class="flex items-center justify-between text-[11px] font-medium mb-1.5">
+          <span class="text-slate-500">${w.registered} registered</span>
+          <span class="${almostFull ? 'text-amber-600' : 'text-slate-400'}">Only ${left} seats left</span>
+        </div>
+        <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+          <div class="h-full rounded-full ${almostFull ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-gradient-to-r from-indigo-500 to-violet-500'} transition-all duration-700" style="width:${pct}%"></div>
+        </div>
+
+        <div class="flex gap-2 mt-4">
+          <button data-reg="${w.id}" onclick="openModal(${w.id})" ${isReg ? 'disabled' : ''}
+            class="flex-1 h-11 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2 ${isReg
+              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 cursor-default'
+              : 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/25 hover:from-indigo-500 hover:to-violet-500 hover:-translate-y-0.5'}">
+            ${isReg ? '<i data-lucide="check" class="w-4 h-4"></i> Registered' : 'Register free <i data-lucide="arrow-right" class="w-4 h-4"></i>'}
+          </button>
+          <button data-bm="${w.id}" onclick="toggleBookmark(${w.id}, event)" aria-label="Save webinar"
+            class="grid place-items-center w-11 h-11 rounded-xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition shrink-0">
+            <i data-lucide="bookmark" class="w-4 h-4 ${isSaved ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </article>`;
+}
+
+const grid = $('webinar-grid');
+
+function render() {
+  const q = $('grid-search').value.trim().toLowerCase();
+  const list = WEBINARS.filter(w =>
+    (activeCat === 'All' || w.category === activeCat) &&
+    (!q || w.title.toLowerCase().includes(q) || w.speaker.toLowerCase().includes(q) || w.category.toLowerCase().includes(q))
+  );
+
+  $('result-count').textContent = list.length;
+
+  if (!list.length) {
+    grid.innerHTML = `
+      <div class="sm:col-span-2 lg:col-span-3 reveal rounded-2xl border-2 border-dashed border-slate-200 bg-white/60 py-20 text-center">
+        <span class="mx-auto grid place-items-center w-14 h-14 rounded-2xl bg-slate-100 text-slate-400"><i data-lucide="search-x" class="w-7 h-7"></i></span>
+        <h3 class="font-display font-semibold text-lg text-slate-800 mt-5">No webinars found</h3>
+        <p class="text-sm text-slate-500 mt-2">Try a different search term or category — new sessions are added weekly.</p>
+        <button onclick="resetFilters()" class="mt-6 px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-500 transition">Clear filters</button>
+      </div>`;
+  } else {
+    grid.innerHTML = list.map(cardHTML).join('');
+    grid.querySelectorAll('.reveal').forEach((el, i) => { el.style.transitionDelay = `${(i % 3) * 70}ms`; });
+  }
+
+  lucide.createIcons();
+  observeReveals(grid);
+}
+
+function resetFilters() {
+  activeCat = 'All';
+  $('grid-search').value = '';
+  renderPills();
+  render();
+}
+
+function setCategory(cat) {
+  activeCat = cat;
+  renderPills();
+  render();
+}
+
+function renderPills() {
+  $('cat-pills').innerHTML = CATEGORIES.map(c => `
+    <button onclick="setCategory('${c}')" class="pill px-4 py-2 rounded-xl text-sm font-semibold border transition ${c === activeCat
+      ? 'bg-slate-950 text-white border-slate-950 shadow-lg shadow-slate-900/15'
+      : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'}">${c}</button>`).join('');
+}
+
+/* ============================================================
+   BOOKMARKS
+============================================================ */
+function toggleBookmark(id, e) {
+  if (e) e.stopPropagation();
+  if (bookmarkSet.has(id)) { bookmarkSet.delete(id); showToast('Removed from your saved list', 'bookmark'); }
+  else { bookmarkSet.add(id); showToast('Saved! We\'ll remind you before it starts', 'bookmark'); }
+
+  document.querySelectorAll(`[data-bm="${id}"]`).forEach(btn => {
+    const on = bookmarkSet.has(id);
+    btn.innerHTML = `<i data-lucide="bookmark" class="w-4 h-4 ${on ? 'fill-amber-400 text-amber-400' : 'text-slate-400'}"></i>`;
+  });
+  lucide.createIcons();
+}
+
+/* ============================================================
+   MODAL
+============================================================ */
+const overlay = $('modal-overlay');
+
+function openModal(id) {
+  const w = WEBINARS.find(x => x.id === id);
+  if (!w) return;
+  currentWebinarId = id;
+
+  $('m-cat').textContent = w.category;
+  $('m-title').textContent = w.title;
+  $('m-avatar').textContent = initials(w.speaker);
+  $('m-avatar').className = `grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br ${w.avatar} text-white text-sm font-bold`;
+  $('m-speaker').textContent = w.speaker;
+  $('m-role').textContent = w.role;
+  $('m-date').textContent = fmtDate(w.date);
+  $('m-time').textContent = `${fmtTime(w.date)} · ${w.level}`;
+  $('m-duration').textContent = w.duration;
+  $('m-seats').textContent = `${w.spots - w.registered} seats left`;
+
+  // Reset form view
+  $('modal-form-view').classList.remove('hidden');
+  $('modal-success-view').classList.add('hidden');
+  $('reg-form').reset();
+  $('reg-remind').checked = true;
+  ['reg-name', 'reg-email'].forEach(i => $(i).classList.remove('border-rose-300', 'ring-4', 'ring-rose-500/10'));
+  $('reg-email-error').classList.add('hidden');
+  $('reg-error').classList.add('hidden');
+
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+  requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('open')));
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  overlay.classList.remove('open');
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+    document.body.style.overflow = '';
+  }, 260);
+}
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+$('reg-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const w = WEBINARS.find(x => x.id === currentWebinarId);
+  const name = $('reg-name').value.trim();
+  const email = $('reg-email').value.trim();
+  const validEmail = /^\S+@\S+\.\S+$/.test(email);
+
+  if (!name || !validEmail) {
+    ['reg-name', 'reg-email'].forEach(i => $(i).classList.remove('border-rose-300', 'ring-4', 'ring-rose-500/10'));
+    if (!name) $('reg-name').classList.add('border-rose-300', 'ring-4', 'ring-rose-500/10');
+    if (!validEmail) { $('reg-email').classList.add('border-rose-300', 'ring-4', 'ring-rose-500/10'); $('reg-email-error').classList.remove('hidden'); }
+    $('reg-error').classList.remove('hidden');
+    return;
+  }
+
+  // Success
+  registeredSet.add(w.id);
+  w.registered = Math.min(w.spots, w.registered + 1);
+  render();
+
+  $('s-title').textContent = `“${w.title}”`;
+  $('s-date').textContent = fmtDateLong(w.date);
+  $('s-time').textContent = `${fmtTime(w.date)} · ${w.duration}`;
+
+  $('modal-form-view').classList.add('hidden');
+  const sv = $('modal-success-view');
+  sv.classList.remove('hidden');
+  sv.querySelector('.check-pop').style.animation = 'none';
+  requestAnimationFrame(() => { sv.querySelector('.check-pop').style.animation = ''; });
+  lucide.createIcons();
+
+  showToast(`Seat confirmed, ${name.split(' ')[0]}! Check your inbox 📬`, 'check-circle-2');
+});
+
+/* ============================================================
+   FEATURED COUNTDOWN
+============================================================ */
+function pickFeatured() {
+  featured = WEBINARS
+    .filter(w => w.date > new Date() && !registeredSet.has(w.id))
+    .sort((a, b) => a.date - b.date)[0] || WEBINARS.slice().sort((a, b) => a.date - b.date)[0];
+
+  $('feat-title').textContent = featured.title;
+  $('feat-speaker').textContent = featured.speaker;
+  $('feat-date').textContent = fmtDateLong(featured.date);
+  $('feat-time').textContent = `${fmtTime(featured.date)} · ${featured.duration}`;
+
+  const btn = $('feat-btn');
+  btn.dataset.reg = featured.id;
+  if (registeredSet.has(featured.id)) {
+    btn.disabled = true;
+    btn.className = 'mt-8 inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-emerald-400/20 border border-emerald-400/40 text-emerald-300 font-semibold cursor-default';
+    btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i> Seat reserved';
+  } else {
+    btn.disabled = false;
+    btn.className = 'mt-8 inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-white text-slate-900 font-semibold hover:bg-indigo-50 transition hover:-translate-y-0.5 shadow-xl';
+    btn.innerHTML = 'Reserve my seat <i data-lucide="arrow-right" class="w-4 h-4"></i>';
+  }
+  lucide.createIcons();
+}
+
+function tickCountdown() {
+  if (!featured || featured.date <= new Date()) { pickFeatured(); }
+  const diff = Math.max(0, featured.date - new Date());
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor(diff / 3600000) % 24;
+  const m = Math.floor(diff / 60000) % 60;
+  const s = Math.floor(diff / 1000) % 60;
+  $('cd-d').textContent = String(d).padStart(2, '0');
+  $('cd-h').textContent = String(h).padStart(2, '0');
+  $('cd-m').textContent = String(m).padStart(2, '0');
+  $('cd-s').textContent = String(s).padStart(2, '0');
+}
+
+/* ============================================================
+   SEARCH
+============================================================ */
+$('grid-search').addEventListener('input', render);
+
+function heroSearchGo() {
+  $('grid-search').value = $('hero-search').value;
+  render();
+  $('webinars').scrollIntoView({ behavior: 'smooth' });
+}
+$('hero-search').addEventListener('keydown', (e) => { if (e.key === 'Enter') heroSearchGo(); });
+
+/* ============================================================
+   NEWSLETTER
+============================================================ */
+$('newsletter-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = $('newsletter-email').value.trim();
+  if (!/^\S+@\S+\.\S+$/.test(email)) { showToast('Please enter a valid email address', 'mail'); return; }
+  $('newsletter-email').value = '';
+  showToast('You\'re subscribed! First digest lands Monday 🎉', 'mail');
+});
+
+/* ============================================================
+   FAQ ACCORDION
+============================================================ */
+document.querySelectorAll('.faq-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panel = btn.nextElementSibling;
+    const icon = btn.querySelector('.faq-icon');
+    const isOpen = panel.style.maxHeight && panel.style.maxHeight !== '0px';
+
+    document.querySelectorAll('.faq-panel').forEach(p => { p.style.maxHeight = '0px'; });
+    document.querySelectorAll('.faq-icon').forEach(i => i.classList.remove('rotate-45', 'bg-indigo-600', 'text-white', 'border-indigo-600'));
+
+    if (!isOpen) {
+      panel.style.maxHeight = panel.scrollHeight + 'px';
+      icon.classList.add('rotate-45', 'bg-indigo-600', 'text-white');
+    }
+  });
+});
+
+/* ============================================================
+   MOBILE MENU
+============================================================ */
+const menuBtn = $('menu-btn'), mobileMenu = $('mobile-menu');
+function toggleMenu(force) {
+  const willOpen = force !== undefined ? force : mobileMenu.classList.contains('hidden');
+  mobileMenu.classList.toggle('hidden', !willOpen);
+  menuBtn.querySelector('.menu-open-icon').classList.toggle('hidden', willOpen);
+  menuBtn.querySelector('.menu-close-icon').classList.toggle('hidden', !willOpen);
+}
+menuBtn.addEventListener('click', () => toggleMenu());
+document.querySelectorAll('.mobile-link').forEach(l => l.addEventListener('click', () => toggleMenu(false)));
+
+/* ============================================================
+   NAV SHADOW
+============================================================ */
+const nav = $('site-nav');
+addEventListener('scroll', () => nav.classList.toggle('nav-scrolled', scrollY > 10), { passive: true });
+
+/* ============================================================
+   COUNTERS
+============================================================ */
+function animateCounters() {
+  document.querySelectorAll('[data-counter]').forEach(el => {
+    const target = +el.dataset.counter;
+    const suffix = el.dataset.suffix || '';
+    const start = performance.now();
+    const dur = 1600;
+    function step(now) {
+      const p = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * eased) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+renderPills();
+render();
+pickFeatured();
+tickCountdown();
+setInterval(tickCountdown, 1000);
+observeReveals();
+lucide.createIcons();
+
+// Animate hero counters when hero becomes visible
+const heroStatObs = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) { animateCounters(); heroStatObs.disconnect(); }
+}, { threshold: 0.3 });
+heroStatObs.observe(document.querySelector('[data-counter]'));
+</script>
+</body>
+</html>
